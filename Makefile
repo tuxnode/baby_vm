@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -g -O0
-# CFLAGS += -DHEX_XOR
+CFLAGS += -DHEX_XOR
 
 TARGET = vm
 

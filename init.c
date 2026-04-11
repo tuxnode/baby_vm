@@ -47,9 +47,8 @@ void load_binary(int argc, char *argv[]) {
 }
 
 void init_and_decrypt_vm() {
-  int code_len = sizeof(encrypted_code);
-
   for (int i = 0; i < code_len; i++) {
-    vm_mem[i] = encrypted_code[i] ^ xor_key;
+    vm_mem[i] = vm_mem[i] ^ xor_key;
   }
+printf("[*] 成功在内存中原地解密了 %d 字节的指令。\n", code_len);
 }
