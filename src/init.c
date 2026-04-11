@@ -2,12 +2,36 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-extern unsigned char vm_mem[MEM_SIZE];
+// extern unsigned char vm_mem[MEM_SIZE];
+extern unsigned char* vm_mem;
+extern VM_Context* ctx;
+
 
 const unsigned char encrypted_code[] = {0x60, 0x50, 0x60, 0x4E, 0x48, 0x26, 0x5A, 0xA5};
 const unsigned char xor_key = 0x7B;
 
 static int code_len = 0;
+
+static int check_null(void *ptr) {
+  if (ptr == NULL) {
+    printf("Malloc Faild\n");
+    return 1;
+  }
+  return 0;
+}
+
+void init_mem() {
+  VM_Context *m_ctx = calloc(1, sizeof(VM_Context));
+  if (check_null(m_ctx) != 0) return;
+  ctx = m_ctx;
+
+  unsigned char* mem = malloc(MEM_SIZE);
+  if (check_null(mem) != 0) {
+    free(ctx);
+    return;
+  }
+  vm_mem = mem;
+}
 
 void load_binary(int argc, char *argv[]) {
   if (argc != 2) {

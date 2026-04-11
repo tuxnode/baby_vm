@@ -50,6 +50,7 @@ void handle_pop(VM_Context* ctx);
 void handle_ldi(VM_Context* ctx);
 
 // init.c
+void init_mem();
 void load_binary(int argc, char *argv[]);
 void init_and_decrypt_vm();
 

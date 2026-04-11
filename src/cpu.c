@@ -4,7 +4,8 @@
 #include <stdlib.h>
 
 // 全局变量模拟内存
-extern unsigned char vm_mem[MEM_SIZE];
+extern unsigned char* vm_mem;
+extern VM_Context* ctx;
 
 // 连续读取 4 个字节，并拼装成 32 位无符号整数 (小端序)
 uint32_t fetch_dword(VM_Context* ctx) {
@@ -83,6 +84,8 @@ void vm_run(VM_Context* ctx) {
   }
   if (ctx->state == VM_STOP) {
     printf("虚拟机正常停机\n");
+    free(vm_mem);
+    free(ctx);
   } else if (ctx->state == VM_CRASH) {
     printf("虚拟机崩溃\n");
   }

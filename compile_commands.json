@@ -1,0 +1,78 @@
+[
+  {
+    "file": "src/cpu.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-O0",
+      "-Iinclude",
+      "-DHEX_XOR",
+      "-c",
+      "src/cpu.c",
+      "-o",
+      "src/cpu.o"
+    ],
+    "directory": "/Users/node/ctf/vm",
+    "output": "src/cpu.o"
+  },
+  {
+    "file": "src/init.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-O0",
+      "-Iinclude",
+      "-DHEX_XOR",
+      "-c",
+      "src/init.c",
+      "-o",
+      "src/init.o"
+    ],
+    "directory": "/Users/node/ctf/vm",
+    "output": "src/init.o"
+  },
+  {
+    "file": "src/main.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-O0",
+      "-Iinclude",
+      "-DHEX_XOR",
+      "-c",
+      "src/main.c",
+      "-o",
+      "src/main.o"
+    ],
+    "directory": "/Users/node/ctf/vm",
+    "output": "src/main.o"
+  },
+  {
+    "file": "src/vm.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-O0",
+      "-Iinclude",
+      "-DHEX_XOR",
+      "-c",
+      "src/vm.c",
+      "-o",
+      "src/vm.o"
+    ],
+    "directory": "/Users/node/ctf/vm",
+    "output": "src/vm.o"
+  }
+]
