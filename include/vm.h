@@ -1,6 +1,6 @@
 #ifndef VM_H
 #define VM_H
-
+#include <stdint.h>
 /*
 #define OP_PUSH 0x3A   // 入栈：PUSH <val>
 #define OP_POP  0x7C   // 出栈到寄存器：POP <reg>
@@ -21,25 +21,44 @@ enum OPCODE {
   OP_EXIT = 0xFF,
 };
 
+// Config
+#define HEX_XOR
+
 #define VM_RUNNING 1
 #define VM_STOP 2
 #define VM_CRASH 3
 
 #define MEM_SIZE 1024 * 64
+#define STACK_SIZE 256
 
+typedef struct REG {
+  int R0;
+  int R1;
+  int R2;
+  int R3;
+} REG;
 
 typedef struct {
-    int r[4];       // 虚拟通用寄存器 (R0, R1, R2, R3)
-    int pc;         // 虚拟程序计数器 (Program Counter)，指向当前执行的字节码
-    int sp;         // 虚拟栈指针 (Stack Pointer)
-    int zf;         // 零标志位 (Zero Flag)，用于条件跳转
-    int stack[256]; // 虚拟机的私有栈
-    int state;      // CPU运行状态
+    struct REG regs;        // 虚拟通用寄存器
+    int pc;                 // 虚拟程序计数器 (Program Counter)，指向当前执行的字节码
+    int sp;                 // 虚拟栈指针 (Stack Pointer)
+    int zf;                 // 零标志位 (Zero Flag)，用于条件跳转
+    unsigned int stack[STACK_SIZE];  // 虚拟机的私有栈
+    int state;              // CPU运行状态
 } VM_Context;
 
 void handle_add(VM_Context* ctx);
 void handle_sub(VM_Context* ctx);
 void handle_cmp(VM_Context* ctx);
 void handle_jz(VM_Context* ctx);
+void handle_push(VM_Context* ctx);
+
+// init.c
+void load_binary(int argc, char *argv[]);
+void init_and_decrypt_vm();
+
+// cpu.c
+void vm_run(VM_Context* ctx);
+uint8_t fetch_byte(VM_Context* ctx);
 
 #endif

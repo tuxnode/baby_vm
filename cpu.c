@@ -1,6 +1,7 @@
 #include "include/vm.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // 全局变量模拟内存
 extern unsigned char vm_mem[MEM_SIZE];
@@ -27,10 +28,11 @@ void vm_run(VM_Context* ctx) {
 
     // 译码
     switch (opcode) {
-      case OP_EXIT: break;
+      case OP_EXIT: exit(1);
       case OP_ADD: handle_add(ctx);
       case OP_SUB: handle_sub(ctx);
       case OP_CMP: handle_cmp(ctx);
+      case OP_JZ: handle_jz(ctx);
     }
   }
 }

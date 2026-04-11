@@ -30,3 +30,7 @@ void handle_jz(VM_Context* ctx) {
   }
 }
 
+void handle_push(VM_Context* ctx) {
+  uint8_t arg = fetch_byte(ctx);
+  ctx->stack[ctx->sp++] = arg;
+}
