@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "include/vm.h"
+#include "vm.h"
 
 unsigned char vm_mem[MEM_SIZE];
 

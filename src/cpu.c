@@ -1,4 +1,4 @@
-#include "include/vm.h"
+#include "vm.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
