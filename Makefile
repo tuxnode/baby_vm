@@ -1,23 +1,24 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -g -O0
+CFLAGS = -Wall -Wextra -Werror -g -O0 -Iinclude
 CFLAGS += -DHEX_XOR
 
 TARGET = vm
 
-SRCS    = $(wildcard *.c)
-OBJS    = $(SRCS:.c=.o)
+SRC_DIR = src
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
+SRCS = $(wildcard $(SRC_DIR)/*.c)
 
-# 增量编译
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+OBJS = $(SRCS:.c=.o)
 
 .PHONY: all clean
 
 all: $(TARGET)
 
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
 	rm -f $(OBJS) $(TARGET)
-
