@@ -32,6 +32,11 @@ void handle_jz(VM_Context* ctx) {
 }
 
 void handle_push(VM_Context* ctx) {
+  if (ctx->sp == 0 && ctx->sp >= STACK_SIZE) {
+    printf("STACK OVERFLOW\n");
+    ctx->state = VM_CRASH;
+    return;
+  }
   unsigned int arg = (unsigned int) fetch_byte(ctx);
   if (arg >= 4) {
     ctx->state = VM_CRASH;
@@ -42,11 +47,12 @@ void handle_push(VM_Context* ctx) {
 
 void handle_pop(VM_Context* ctx) {
   // 安全溢出检查
-  if(ctx->sp == 0) {
-    printf("handle_pop: sp is already ZERO\n");
+  if(ctx->sp == 0 && ctx->sp >= STACK_SIZE) {
+    printf("STACK OVERFLOW\n");
     ctx->state = VM_CRASH;
     return;
   }
+
 
   // 获取需要存入哪个寄存器
   unsigned int reg_idx = (unsigned int) fetch_byte(ctx);
