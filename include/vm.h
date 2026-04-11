@@ -1,0 +1,45 @@
+#ifndef VM_H
+#define VM_H
+
+/*
+#define OP_PUSH 0x3A   // 入栈：PUSH <val>
+#define OP_POP  0x7C   // 出栈到寄存器：POP <reg>
+#define OP_ADD  0x12   // 栈顶两元素相加，结果压栈
+#define OP_SUB  0x9F   // 栈顶两元素相减，结果压栈
+#define OP_CMP  0x55   // 比较栈顶和次栈顶，设置zf
+#define OP_JZ   0x4B   // 若zf==1则跳转：JZ <offset>
+#define OP_EXIT 0xFF   // 结束执行
+*/
+
+enum OPCODE {
+  OP_PUSH = 0x3A,
+  OP_POP = 0x7C,
+  OP_ADD = 0x12,
+  OP_SUB = 0x9F,
+  OP_CMP = 0x55,
+  OP_JZ = 0x4B,
+  OP_EXIT = 0xFF,
+};
+
+#define VM_RUNNING 1
+#define VM_STOP 2
+#define VM_CRASH 3
+
+#define MEM_SIZE 1024 * 64
+
+
+typedef struct {
+    int r[4];       // 虚拟通用寄存器 (R0, R1, R2, R3)
+    int pc;         // 虚拟程序计数器 (Program Counter)，指向当前执行的字节码
+    int sp;         // 虚拟栈指针 (Stack Pointer)
+    int zf;         // 零标志位 (Zero Flag)，用于条件跳转
+    int stack[256]; // 虚拟机的私有栈
+    int state;      // CPU运行状态
+} VM_Context;
+
+void handle_add(VM_Context* ctx);
+void handle_sub(VM_Context* ctx);
+void handle_cmp(VM_Context* ctx);
+void handle_jz(VM_Context* ctx);
+
+#endif
