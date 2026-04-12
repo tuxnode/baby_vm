@@ -31,10 +31,6 @@ void init_mem() {
     return;
   }
   vm_mem = mem;
-
-  char *_data_mem = calloc(1, MEM_SIZE);
-  if (check_null(_data_mem) != 0) return;
-  ctx->_data = _data_mem;
 }
 
 void load_binary(int argc, char *argv[]) {
