@@ -16,10 +16,9 @@ def assemble(asm_code):
     symbol_table = {}
     current_address = 0
     
-    # 清理代码并提取有效行
     clean_lines = []
     for line in lines:
-        line = line.split(';')[0].strip() # 去掉注释和两端空格
+        line = line.split(';')[0].strip()
         if line:
             clean_lines.append(line)
 
@@ -31,16 +30,20 @@ def assemble(asm_code):
         elif line.startswith('.string'): 
             match = re.search(r'"(.*?)"', line)
             if match:
-                # 处理转义字符，比如将 "\n" 转换为真实的换行符 0x0A
                 raw_str = match.group(1).encode('utf-8').decode('unicode_escape')
                 current_address += len(raw_str.encode('utf-8')) + 1
         else: 
             parts = line.replace(',', ' ').split()
             op = parts[0]
+            # [!] 修复点：计算所有指令的长度
             if op in ["EXIT", "ECALL", "ADD", "SUB", "CMP"]:
                 current_address += 1
+            elif op == "POP":
+                current_address += 2   # OP(1) + REG(1)
+            elif op in ["PUSH", "JZ"]:
+                current_address += 5   # OP(1) + IMM/ADDR(4)
             elif op == "LDI":
-                current_address += 6 
+                current_address += 6   # OP(1) + REG(1) + IMM(4)
 
     # ================= 第二趟：生成机器码 =================
     binary_out = bytearray()
@@ -52,7 +55,6 @@ def assemble(asm_code):
         elif line.startswith('.string'):
             match = re.search(r'"(.*?)"', line)
             if match:
-                # 同样处理转义字符，确保 \n 变成真实的字节 0x0A
                 raw_str = match.group(1).encode('utf-8').decode('unicode_escape')
                 binary_out.extend(raw_str.encode('utf-8'))
                 binary_out.append(0x00)
@@ -61,8 +63,28 @@ def assemble(asm_code):
             parts = line.replace(',', ' ').split()
             op = parts[0]
             
-            if op in ["EXIT", "ECALL"]:
+            # [!] 修复点：把所有指令都翻译成字节码写入文件
+            if op in ["EXIT", "ECALL", "ADD", "SUB", "CMP"]:
                 binary_out.append(OPCODES[op])
+                
+            elif op == "POP":
+                binary_out.append(OPCODES["POP"])
+                reg_num = int(re.search(r'\[(\d+)\]', parts[1]).group(1))
+                binary_out.append(reg_num)
+                
+            elif op == "PUSH":
+                binary_out.append(OPCODES["PUSH"])
+                imm_val = int(parts[1])
+                binary_out.extend(struct.pack("<I", imm_val))
+                
+            elif op == "JZ":
+                binary_out.append(OPCODES["JZ"])
+                label_name = parts[1]
+                if label_name in symbol_table:
+                    addr = symbol_table[label_name]
+                else:
+                    raise ValueError(f"Unknown label: {label_name}")
+                binary_out.extend(struct.pack("<I", addr))
                 
             elif op == "LDI":
                 binary_out.append(OPCODES["LDI"])
@@ -82,53 +104,32 @@ def assemble(asm_code):
     return binary_out
 
 def main():
-    # 检查命令行参数
     if len(sys.argv) < 2:
-        print("BabyVM Assembler v1.0")
+        print("BabyVM Assembler v1.1")
         print("用法: python assembler.py <input_file.asm> [output_file.bin]")
         sys.exit(1)
 
     input_file = sys.argv[1]
-    
-    # 如果用户没有指定输出文件名，则自动根据输入文件名生成
-    if len(sys.argv) >= 3:
-        output_file = sys.argv[2]
-    else:
-        # os.path.splitext("test.asm") 会返回 ("test", ".asm")
-        base_name = os.path.splitext(input_file)[0]
-        output_file = f"{base_name}.bin"
+    output_file = sys.argv[2] if len(sys.argv) >= 3 else f"{os.path.splitext(input_file)[0]}.bin"
 
-    # 读取外部汇编文件
     try:
         with open(input_file, "r", encoding="utf-8") as f:
             asm_source = f.read()
-    except FileNotFoundError:
-        print(f"[!] 错误: 找不到文件 '{input_file}'")
-        sys.exit(1)
     except Exception as e:
-        print(f"[!] 读取文件时发生错误: {e}")
         sys.exit(1)
 
     print(f"[*] 正在汇编: {input_file} ...")
-    
-    # 调用汇编核心逻辑
-    try:
-        machine_code = assemble(asm_source)
-    except Exception as e:
-        print(f"[!] 汇编过程中出现语法错误: {e}")
-        sys.exit(1)
+    machine_code = assemble(asm_source)
 
     XOR_KEY = 0x7B
     encrypted_code = bytearray()
     for byte in machine_code:
         encrypted_code.append(byte ^ XOR_KEY)
 
-    # 写入二进制文件 (注意这里写入的是 encrypted_code)
     with open(output_file, "wb") as f:
         f.write(encrypted_code)
 
     print(f"[+] 汇编成功！共生成 {len(machine_code)} 字节。")
-    print(f"[+] 已使用密钥 0x{XOR_KEY:02X} 对二进制文件进行 XOR 加密。")
 
 if __name__ == "__main__":
     main()
