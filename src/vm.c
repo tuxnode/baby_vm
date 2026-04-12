@@ -5,15 +5,18 @@
 extern char *vm_mem;
 
 void handle_add(VM_Context* ctx) {
-  int a = ctx->stack[--ctx->sp];
-  int b = ctx->stack[--ctx->sp];
-  ctx->stack[ctx->sp++] = a + b;
+  if (ctx->sp < 2) { ctx->state = VM_CRASH; return; }
+  int right_op = ctx->stack[--ctx->sp];
+  int left_op = ctx->stack[--ctx->sp];
+  ctx->stack[ctx->sp++] = left_op + right_op;
 }
 
 void handle_sub(VM_Context* ctx) {
-  int a = ctx->stack[--ctx->sp];
-  int b = ctx->stack[--ctx->sp];
-  ctx->stack[ctx->sp++] = a - b;
+  if (ctx->sp < 2) { ctx->state = VM_CRASH; return; }
+  int right_op = ctx->stack[--ctx->sp];
+  int left_op = ctx->stack[--ctx->sp];
+  // 必须是 left - right
+  ctx->stack[ctx->sp++] = left_op - right_op; 
 }
 
 void handle_cmp(VM_Context* ctx) {
@@ -27,43 +30,39 @@ void handle_cmp(VM_Context* ctx) {
 }
 
 void handle_jz(VM_Context* ctx) {
-  int target = ctx->stack[--ctx->sp];
+  uint32_t target_addr = fetch_dword(ctx);
   if (ctx->zf == 1) {
-    ctx->pc = target;
+    ctx->pc = target_addr;
   }
 }
 
 void handle_push(VM_Context* ctx) {
-  if (ctx->sp == 0 && ctx->sp >= STACK_SIZE) {
-    printf("STACK OVERFLOW\n");
+  // 检查栈溢出
+  if (ctx->sp >= STACK_SIZE || ctx->sp < 0) {
+    printf("handle_push: STACK OVERFLOW\n");
     ctx->state = VM_CRASH;
     return;
   }
-  unsigned int arg = (unsigned int) fetch_byte(ctx);
-  if (arg >= 4) {
-    ctx->state = VM_CRASH;
-    return;
-  }
-  ctx->stack[ctx->sp++] = ctx->reg[(int) arg];
+  
+  // 加载立即数
+  uint32_t imm_val = fetch_dword(ctx); 
+  ctx->stack[ctx->sp++] = imm_val;
 }
 
 void handle_pop(VM_Context* ctx) {
-  // 安全溢出检查
-  if(ctx->sp == 0 && ctx->sp >= STACK_SIZE) {
-    printf("STACK OVERFLOW\n");
+  // 检查栈下溢
+  if (ctx->sp <= 0 || ctx->sp >= STACK_SIZE) {
+    printf("handle_pop: STACK UNDERFLOW\n");
     ctx->state = VM_CRASH;
     return;
   }
 
-
-  // 获取需要存入哪个寄存器
   unsigned int reg_idx = (unsigned int) fetch_byte(ctx);
   if (reg_idx >= 4) {
-    printf("handle_pop: Invalid Arg\n");
+    printf("VM Crash: handle_pop Invalid Register\n");
     ctx->state = VM_CRASH;
     return;
   }
-
   int popped_value = ctx->stack[--ctx->sp];
   ctx->reg[reg_idx] = popped_value;
 }
@@ -71,8 +70,8 @@ void handle_pop(VM_Context* ctx) {
 void handle_ldi(VM_Context* ctx) {
   // 获取寄存器信息
   unsigned int reg_idx = (unsigned int) fetch_byte(ctx);
-  if (reg_idx > 4) {
-    printf("handle_push: Invalid Arg\n");
+  if (reg_idx >= 4) {
+    printf("VM Crash: handle_ldi Invalid Register\n");
     ctx->state = VM_CRASH;
     return;
   }
