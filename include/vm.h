@@ -56,6 +56,7 @@ void init_and_decrypt_vm();
 
 // cpu.c
 void vm_run(VM_Context* ctx);
+void show_info(VM_Context* ctx);
 uint8_t fetch_byte(VM_Context* ctx);
 uint32_t fetch_dword(VM_Context* ctx);
 

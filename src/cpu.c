@@ -31,6 +31,13 @@ uint8_t fetch_byte(VM_Context* ctx) {
   return byte;
 }
 
+void show_info(VM_Context* ctx) {
+  // Print Registers
+  for (int i = 0; i < 4; i++) {
+    printf("Registers: R%d: %d \n", i, ctx->reg[i]);
+  }
+}
+
 void vm_run(VM_Context* ctx) {
   ctx->state = VM_RUNNING;
 
@@ -83,10 +90,12 @@ void vm_run(VM_Context* ctx) {
     }
   }
   if (ctx->state == VM_STOP) {
+    show_info(ctx);
     printf("虚拟机正常停机\n");
     free(vm_mem);
     free(ctx);
   } else if (ctx->state == VM_CRASH) {
+    show_info(ctx);
     printf("虚拟机崩溃\n");
   }
 }
