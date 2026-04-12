@@ -97,9 +97,53 @@ void handle_ecall(VM_Context* ctx) {
       sys_print_int(ctx);
       break;
     }
+    case SYS_READ_STR: {
+      sys_read_str(ctx);
+      break;
+    }
     default: {
       printf("Unknow ecall number\n");
       ctx->state = VM_CRASH;
     }
   }
+}
+
+void handle_ldb(VM_Context* ctx) {
+  // 读取目的寄存器和源寄存器的索引 (各占 1 字节)
+  unsigned int dst_reg = (unsigned int)fetch_byte(ctx);
+  unsigned int src_reg = (unsigned int)fetch_byte(ctx);
+
+  if (dst_reg >= 4 || src_reg >= 4) {
+    ctx->state = VM_CRASH;
+    return;
+  }
+
+  // 获取内存地址
+  int addr = ctx->reg[src_reg];
+  if (addr < 0 || addr >= MEM_SIZE) {
+    ctx->state = VM_CRASH;
+    return;
+  }
+
+  // printf("[DEBUG] LDB: 从地址 %d 读取了字符 '%c' (ASCII: %d)\n", addr, ctx->mem[addr], ctx->mem[addr]);
+  // 读取 1 字节数据，并扩展为 32 位存入寄存器
+  ctx->reg[dst_reg] = (uint32_t)ctx->mem[addr];
+}
+
+void handle_pushr(VM_Context* ctx) {
+  if (ctx->sp >= STACK_SIZE) {
+    printf("VM Crash: STACK OVERFLOW in PUSHR\n");
+    ctx->state = VM_CRASH;
+    return;
+  }
+  
+  // 寄存器编号只有 1 个字节
+  unsigned int reg_idx = (unsigned int) fetch_byte(ctx);
+  if (reg_idx >= 4) {
+    ctx->state = VM_CRASH;
+    return;
+  }
+  
+  // 将指定寄存器的值压入栈中
+  ctx->stack[ctx->sp++] = ctx->reg[reg_idx];
 }

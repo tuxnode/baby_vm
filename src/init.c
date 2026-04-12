@@ -1,6 +1,7 @@
 #include "vm.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 // extern unsigned char vm_mem[MEM_SIZE];
 extern char* vm_mem;
@@ -25,12 +26,15 @@ void init_mem() {
   if (check_null(m_ctx) != 0) return;
   ctx = m_ctx;
 
-  char* mem = malloc(MEM_SIZE);
-  if (check_null(mem) != 0) {
-    free(ctx);
-    return;
-  }
-  vm_mem = mem;
+  // char* mem = malloc(MEM_SIZE);
+  // if (check_null(mem) != 0) {
+  //   free(ctx);
+  //   return;
+  // }
+  vm_mem = (char *) &ctx->mem[0];
+
+  memset(ctx->mem, 0, sizeof(ctx->mem));
+  memset(ctx->reg, 0, sizeof(ctx->reg));
 }
 
 void load_binary(int argc, char *argv[]) {

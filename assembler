@@ -5,10 +5,10 @@ import re
 import sys
 import os
 
-# 1. 定义你的虚拟机指令集架构 (ISA)
 OPCODES = {
     "PUSH": 0x3A, "POP": 0x7C, "ADD": 0x12, "SUB": 0x9F,
-    "CMP": 0x55, "JZ": 0x4B, "LDI": 0x8A, "EXIT": 0xFF, "ECALL": 0xCC
+    "CMP": 0x55, "JZ": 0x4B, "LDI": 0x8A, "EXIT": 0xFF, "ECALL": 0xCC,
+    "LDB": 0x77
 }
 
 def assemble(asm_code):
@@ -35,15 +35,19 @@ def assemble(asm_code):
         else: 
             parts = line.replace(',', ' ').split()
             op = parts[0]
-            # [!] 修复点：计算所有指令的长度
             if op in ["EXIT", "ECALL", "ADD", "SUB", "CMP"]:
                 current_address += 1
             elif op == "POP":
-                current_address += 2   # OP(1) + REG(1)
+                current_address += 2
             elif op in ["PUSH", "JZ"]:
-                current_address += 5   # OP(1) + IMM/ADDR(4)
+                if parts[1].startswith("reg["):
+                    current_address += 2
+                else:
+                    current_address += 5
             elif op == "LDI":
-                current_address += 6   # OP(1) + REG(1) + IMM(4)
+                current_address += 6
+            elif op == "LDB":
+                current_address += 3  # [!] 致命修复：LDB 占 3 字节！
 
     # ================= 第二趟：生成机器码 =================
     binary_out = bytearray()
@@ -51,32 +55,31 @@ def assemble(asm_code):
     for line in clean_lines:
         if line.endswith(':'):
             continue 
-            
         elif line.startswith('.string'):
             match = re.search(r'"(.*?)"', line)
             if match:
                 raw_str = match.group(1).encode('utf-8').decode('unicode_escape')
                 binary_out.extend(raw_str.encode('utf-8'))
                 binary_out.append(0x00)
-                
         else:
             parts = line.replace(',', ' ').split()
             op = parts[0]
             
-            # [!] 修复点：把所有指令都翻译成字节码写入文件
             if op in ["EXIT", "ECALL", "ADD", "SUB", "CMP"]:
                 binary_out.append(OPCODES[op])
-                
             elif op == "POP":
                 binary_out.append(OPCODES["POP"])
                 reg_num = int(re.search(r'\[(\d+)\]', parts[1]).group(1))
                 binary_out.append(reg_num)
-                
             elif op == "PUSH":
-                binary_out.append(OPCODES["PUSH"])
-                imm_val = int(parts[1])
-                binary_out.extend(struct.pack("<I", imm_val))
-                
+                if parts[1].startswith("reg["):
+                    binary_out.append(0x3B)  # 对应 C 里的 OP_PUSHR = 0x3B
+                    reg_num = int(re.search(r'\[(\d+)\]', parts[1]).group(1))
+                    binary_out.append(reg_num)
+                else:
+                    binary_out.append(OPCODES["PUSH"])
+                    imm_val = int(parts[1])
+                    binary_out.extend(struct.pack("<I", imm_val))
             elif op == "JZ":
                 binary_out.append(OPCODES["JZ"])
                 label_name = parts[1]
@@ -85,12 +88,16 @@ def assemble(asm_code):
                 else:
                     raise ValueError(f"Unknown label: {label_name}")
                 binary_out.extend(struct.pack("<I", addr))
-                
+            elif op == "LDB":
+                binary_out.append(OPCODES["LDB"])
+                dst_reg = int(re.search(r'\[(\d+)\]', parts[1]).group(1))
+                src_reg = int(re.search(r'\[(\d+)\]', parts[2]).group(1))
+                binary_out.append(dst_reg)
+                binary_out.append(src_reg)
             elif op == "LDI":
                 binary_out.append(OPCODES["LDI"])
                 reg_num = int(re.search(r'\[(\d+)\]', parts[1]).group(1))
                 binary_out.append(reg_num)
-                
                 imm_str = parts[2]
                 if imm_str in symbol_table: 
                     imm_val = symbol_table[imm_str]
@@ -98,27 +105,21 @@ def assemble(asm_code):
                     imm_val = int(imm_str, 16)
                 else: 
                     imm_val = int(imm_str)
-                    
                 binary_out.extend(struct.pack("<I", imm_val))
 
     return binary_out
 
 def main():
     if len(sys.argv) < 2:
-        print("BabyVM Assembler v1.1")
         print("用法: python assembler.py <input_file.asm> [output_file.bin]")
         sys.exit(1)
 
     input_file = sys.argv[1]
     output_file = sys.argv[2] if len(sys.argv) >= 3 else f"{os.path.splitext(input_file)[0]}.bin"
 
-    try:
-        with open(input_file, "r", encoding="utf-8") as f:
-            asm_source = f.read()
-    except Exception as e:
-        sys.exit(1)
+    with open(input_file, "r", encoding="utf-8") as f:
+        asm_source = f.read()
 
-    print(f"[*] 正在汇编: {input_file} ...")
     machine_code = assemble(asm_source)
 
     XOR_KEY = 0x7B
@@ -128,7 +129,6 @@ def main():
 
     with open(output_file, "wb") as f:
         f.write(encrypted_code)
-
     print(f"[+] 汇编成功！共生成 {len(machine_code)} 字节。")
 
 if __name__ == "__main__":

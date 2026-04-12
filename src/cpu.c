@@ -86,6 +86,14 @@ void vm_run(VM_Context* ctx) {
         handle_ecall(ctx);
         break;
       }
+      case OP_LDB: {
+        handle_ldb(ctx);
+        break;
+      }
+      case OP_PUSHR: {
+        handle_pushr(ctx);
+        break;
+      }
       default: {
         printf("vm_run: Unknown OPCODE: 0x%02X, pc: %d\n", opcode, cur_pc);
         ctx->state = VM_CRASH;
@@ -96,7 +104,7 @@ void vm_run(VM_Context* ctx) {
   if (ctx->state == VM_STOP) {
     show_info(ctx);
     printf("虚拟机正常停机\n\n");
-    free(vm_mem);
+    // free(vm_mem);
     free(ctx);
   } else if (ctx->state == VM_CRASH) {
     show_info(ctx);

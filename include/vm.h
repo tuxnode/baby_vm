@@ -13,6 +13,7 @@
 
 enum OPCODE {
   OP_PUSH = 0x3A,
+  OP_PUSHR = 0x3B,
   OP_POP = 0x7C,
   OP_ADD = 0x12,
   OP_SUB = 0x9F,
@@ -20,12 +21,14 @@ enum OPCODE {
   OP_JZ = 0x4B,
   OP_LDI = 0x8A,
   OP_ECALL = 0xCC,
+  OP_LDB = 0x77,
   OP_EXIT = 0xFF,
 };
 
 // syscall
 #define SYS_PRINT_STR 1
 #define SYS_PRINT_INT 2
+#define SYS_READ_STR 3
 
 // Config
 // #define HEX_XOR
@@ -44,6 +47,7 @@ typedef struct {
     int zf;                           // 零标志位 (Zero Flag)，用于条件跳转
     unsigned int stack[STACK_SIZE];   // 虚拟机的私有栈
     int state;                        // CPU运行状态
+    unsigned char mem[MEM_SIZE];
 } VM_Context;
 
 void handle_add(VM_Context* ctx);
@@ -54,6 +58,8 @@ void handle_push(VM_Context* ctx);
 void handle_pop(VM_Context* ctx);
 void handle_ldi(VM_Context* ctx);
 void handle_ecall(VM_Context* ctx);
+void handle_ldb(VM_Context* ctx);
+void handle_pushr(VM_Context* ctx);
 
 // init.c
 void init_mem();
@@ -69,5 +75,6 @@ uint32_t fetch_dword(VM_Context* ctx);
 // ecall.c
 void sys_print_str(VM_Context* ctx);
 void sys_print_int(VM_Context* ctx);
+void sys_read_str(VM_Context* ctx);
 
 #endif
