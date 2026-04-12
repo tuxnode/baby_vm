@@ -2,7 +2,7 @@
 #include "vm.h"
 
 // unsigned char vm_mem[MEM_SIZE];
-unsigned char *vm_mem;
+char *vm_mem;
 
 VM_Context* ctx;
 

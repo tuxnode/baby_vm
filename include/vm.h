@@ -19,8 +19,13 @@ enum OPCODE {
   OP_CMP = 0x55,
   OP_JZ = 0x4B,
   OP_LDI = 0x8A,
+  OP_ECALL = 0xCC,
   OP_EXIT = 0xFF,
 };
+
+// syscall
+#define SYS_PRINT_STR 1
+#define SYS_PRINT_INT 2
 
 // Config
 // #define HEX_XOR
@@ -48,6 +53,7 @@ void handle_jz(VM_Context* ctx);
 void handle_push(VM_Context* ctx);
 void handle_pop(VM_Context* ctx);
 void handle_ldi(VM_Context* ctx);
+void handle_ecall(VM_Context* ctx);
 
 // init.c
 void init_mem();
@@ -59,5 +65,9 @@ void vm_run(VM_Context* ctx);
 void show_info(VM_Context* ctx);
 uint8_t fetch_byte(VM_Context* ctx);
 uint32_t fetch_dword(VM_Context* ctx);
+
+// ecall.c
+void sys_print_str(VM_Context* ctx);
+void sys_print_int(VM_Context* ctx);
 
 #endif

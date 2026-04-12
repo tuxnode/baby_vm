@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+extern char *vm_mem;
+
 void handle_add(VM_Context* ctx) {
   int a = ctx->stack[--ctx->sp];
   int b = ctx->stack[--ctx->sp];
@@ -77,4 +79,28 @@ void handle_ldi(VM_Context* ctx) {
   // 获取数值
   uint32_t inum = fetch_dword(ctx);
   ctx->reg[reg_idx] = inum;
+}
+
+/*
+ * reg[0]作为系统调用号的寄存器，
+* reg[1]作为string地址的参数寄存器
+*/
+
+void handle_ecall(VM_Context* ctx) {
+  int ecall_num = ctx->reg[0];
+
+  switch (ecall_num) {
+    case SYS_PRINT_STR: {
+      sys_print_str(ctx);
+      break;
+    }
+    case SYS_PRINT_INT: {
+      sys_print_int(ctx);
+      break;
+    }
+    default: {
+      printf("Unknow ecall number\n");
+      ctx->state = VM_CRASH;
+    }
+  }
 }

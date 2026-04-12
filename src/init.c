@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 // extern unsigned char vm_mem[MEM_SIZE];
-extern unsigned char* vm_mem;
+extern char* vm_mem;
 extern VM_Context* ctx;
 
 
@@ -25,12 +25,16 @@ void init_mem() {
   if (check_null(m_ctx) != 0) return;
   ctx = m_ctx;
 
-  unsigned char* mem = malloc(MEM_SIZE);
+  char* mem = malloc(MEM_SIZE);
   if (check_null(mem) != 0) {
     free(ctx);
     return;
   }
   vm_mem = mem;
+
+  char *_data_mem = calloc(1, MEM_SIZE);
+  if (check_null(_data_mem) != 0) return;
+  ctx->_data = _data_mem;
 }
 
 void load_binary(int argc, char *argv[]) {

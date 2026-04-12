@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 // 全局变量模拟内存
-extern unsigned char* vm_mem;
+extern char* vm_mem;
 extern VM_Context* ctx;
 
 // 连续读取 4 个字节，并拼装成 32 位无符号整数 (小端序)
@@ -82,6 +82,10 @@ void vm_run(VM_Context* ctx) {
         handle_ldi(ctx);
         break;
       }
+      case OP_ECALL: {
+        handle_ecall(ctx);
+        break;
+      }
       default: {
         printf("vm_run: Unknown OPCODE: 0x%02X, pc: %d\n", opcode, cur_pc);
         ctx->state = VM_CRASH;
@@ -91,13 +95,11 @@ void vm_run(VM_Context* ctx) {
   }
   if (ctx->state == VM_STOP) {
     show_info(ctx);
-    printf("虚拟机正常停机\n");
+    printf("虚拟机正常停机\n\n");
     free(vm_mem);
     free(ctx);
   } else if (ctx->state == VM_CRASH) {
     show_info(ctx);
-    printf("虚拟机崩溃\n");
+    printf("虚拟机崩溃\n\n");
   }
 }
-
-
