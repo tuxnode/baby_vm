@@ -1,6 +1,7 @@
 #ifndef VM_H
 #define VM_H
 #include <stdint.h>
+#include <stdbool.h>
 /*
 #define OP_PUSH 0x3A   // 入栈：PUSH <val>
 #define OP_POP  0x7C   // 出栈到寄存器：POP <reg>
@@ -25,6 +26,9 @@ enum OPCODE {
   OP_EXIT = 0xFF,
 };
 
+// CPU 
+#define MAX_STEP 2048
+
 // syscall
 #define SYS_PRINT_STR 1
 #define SYS_PRINT_INT 2
@@ -36,6 +40,7 @@ enum OPCODE {
 #define VM_RUNNING 1
 #define VM_STOP 2
 #define VM_CRASH 3
+#define VM_PAUSE 4
 
 #define MEM_SIZE 1024 * 64
 #define STACK_SIZE 256
@@ -48,6 +53,7 @@ typedef struct {
     unsigned int stack[STACK_SIZE];   // 虚拟机的私有栈
     int state;                        // CPU运行状态
     unsigned char mem[MEM_SIZE];
+    bool is_vmdb;                     // vmdb是否运行
 } VM_Context;
 
 void handle_add(VM_Context* ctx);
@@ -63,12 +69,13 @@ void handle_pushr(VM_Context* ctx);
 
 // init.c
 void init_mem();
-void load_binary(int argc, char *argv[]);
+void load_binary(char *);
 void init_and_decrypt_vm();
 void dump_stack(VM_Context* ctx);
+void mem_destory(VM_Context* ctx);
 
 // cpu.c
-void vm_run(VM_Context* ctx);
+void vm_run(VM_Context* ctx, int);
 void show_info(VM_Context* ctx);
 uint8_t fetch_byte(VM_Context* ctx);
 uint32_t fetch_dword(VM_Context* ctx);

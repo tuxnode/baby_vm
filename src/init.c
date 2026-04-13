@@ -1,4 +1,5 @@
 #include "vm.h"
+#include "vmdb.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,6 +26,7 @@ void init_mem() {
   VM_Context *m_ctx = calloc(1, sizeof(VM_Context));
   if (check_null(m_ctx) != 0) return;
   ctx = m_ctx;
+  ctx->is_vmdb = false;
 
   // char* mem = malloc(MEM_SIZE);
   // if (check_null(mem) != 0) {
@@ -37,13 +39,8 @@ void init_mem() {
   memset(ctx->reg, 0, sizeof(ctx->reg));
 }
 
-void load_binary(int argc, char *argv[]) {
-  if (argc != 2) {
-    printf("Usage: vm BIN\n");
-    exit(1);
-  }
-
-  const char *filename = argv[1];
+void load_binary(char *argv) {
+  const char *filename = argv;
   
   FILE *fp = fopen(filename, "rb");
   if (fp == NULL) {
@@ -97,4 +94,11 @@ void dump_stack(VM_Context* ctx) {
     }
   }
   printf("STACK END\n");
+}
+
+void mem_destory(VM_Context* ctx) {
+  if (ctx->state == VM_CRASH || ctx->state == VM_STOP) {
+    free(vm_mem);
+    free(ctx);
+  }
 }

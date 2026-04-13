@@ -40,76 +40,93 @@ void show_info(VM_Context* ctx) {
   dump_stack(ctx);
 }
 
-void vm_run(VM_Context* ctx) {
-  ctx->state = VM_RUNNING;
+static void vm_step(VM_Context* ctx) {
+  // 记录当前pc
+  int cur_pc = ctx->pc;
+  uint8_t opcode = fetch_byte(ctx);
+  if (ctx->state != VM_RUNNING) return;
 
-  while (ctx->state == VM_RUNNING) {
-    // 记录当前pc
-    int cur_pc = ctx->pc;
-
-    uint8_t opcode = fetch_byte(ctx);
-    if (ctx->state != VM_RUNNING) break;
-
-    // 译码
-    switch (opcode) {
-      case OP_EXIT: {
-        ctx->state = VM_STOP;
-        break;
-      }
-      case OP_ADD: {
-        handle_add(ctx);
-        break;
-      }
-      case OP_SUB: {
-        handle_sub(ctx);
-        break;
-      }
-      case OP_CMP: {
-        handle_cmp(ctx);
-        break;
-      }
-      case OP_JZ: {
-        handle_jz(ctx);
-        break;
-      }
-      case OP_PUSH: {
-        handle_push(ctx); 
-        break;
-      }
-      case OP_POP: {
-        handle_pop(ctx);
-        break;
-      }
-      case OP_LDI: {
-        handle_ldi(ctx);
-        break;
-      }
-      case OP_ECALL: {
-        handle_ecall(ctx);
-        break;
-      }
-      case OP_LDB: {
-        handle_ldb(ctx);
-        break;
-      }
-      case OP_PUSHR: {
-        handle_pushr(ctx);
-        break;
-      }
-      default: {
-        printf("vm_run: Unknown OPCODE: 0x%02X, pc: %d\n", opcode, cur_pc);
-        ctx->state = VM_CRASH;
-        break;
-      }
+  switch (opcode) {
+    case OP_EXIT: {
+      ctx->state = VM_STOP;
+      break;
+    }
+    case OP_ADD: {
+      handle_add(ctx);
+      break;
+    }
+    case OP_SUB: {
+      handle_sub(ctx);
+      break;
+    }
+    case OP_CMP: {
+      handle_cmp(ctx);
+      break;
+    }
+    case OP_JZ: {
+      handle_jz(ctx);
+      break;
+    }
+    case OP_PUSH: {
+      handle_push(ctx); 
+      break;
+    }
+    case OP_POP: {
+      handle_pop(ctx);
+      break;
+    }
+    case OP_LDI: {
+      handle_ldi(ctx);
+      break;
+    }
+    case OP_ECALL: {
+      handle_ecall(ctx);
+      break;
+    }
+    case OP_LDB: {
+      handle_ldb(ctx);
+      break;
+    }
+    case OP_PUSHR: {
+      handle_pushr(ctx);
+      break;
+    }
+    default: {
+      printf("vm_run: Unknown OPCODE: 0x%02X, pc: %d\n", opcode, cur_pc);
+      ctx->state = VM_CRASH;
+      break;
     }
   }
+}
+
+void vm_run(VM_Context* ctx, int step) {
+  ctx->state = VM_RUNNING;
+
+  // while (ctx->state == VM_RUNNING) {
+  //   vm_step(ctx);
+  // }
+
+  // 检查step是否合法
+  if (step <= 0 || step >= MAX_STEP) {
+    printf("Invalid Step NUM\n");
+    return;
+  }
+
+  for (int i = 0; i < step; i++) {
+    vm_step(ctx);
+  }
+
   if (ctx->state == VM_STOP) {
     show_info(ctx);
     printf("虚拟机正常停机\n\n");
-    // free(vm_mem);
-    free(ctx);
+    mem_destory(ctx);
   } else if (ctx->state == VM_CRASH) {
     show_info(ctx);
     printf("虚拟机崩溃\n\n");
+    mem_destory(ctx);
+  } else if (ctx->state == VM_PAUSE) {
+    printf("虚拟机暂停\n\n");
   }
 }
+
+
