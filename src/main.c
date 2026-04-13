@@ -10,7 +10,7 @@ VM_Context* ctx;
 
 int main(int argc, char *argv[]) {
   int opt;
-  int g_flag;
+  int g_flag = 0;
 
   while ((opt = getopt(argc, argv, "g")) != -1) {
     switch (opt) {
@@ -35,6 +35,10 @@ int main(int argc, char *argv[]) {
 
   init_and_decrypt_vm();
 
-  if (g_flag) vmdb_cli(ctx);
-  else vm_run(ctx, MAX_STEP);
+  if (g_flag) {
+    vmdb_cli(ctx);
+  } else {
+    vm_run(ctx, MAX_STEP);
+  }
+  mem_destory(ctx);
 }

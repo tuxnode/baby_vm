@@ -19,7 +19,7 @@ uint32_t fetch_dword(VM_Context* ctx) {
 
 uint8_t fetch_byte(VM_Context* ctx) {
   // 检查pc
-  if (ctx->pc >= MEM_SIZE) {
+  if (ctx->pc >= MEM_SIZE || ctx->pc < 0) {
     printf("fetch: Invalid pc value, out of memory\n");
     ctx->state = VM_CRASH;
     return 0;
@@ -107,7 +107,7 @@ void vm_run(VM_Context* ctx, int step) {
   // }
 
   // 检查step是否合法
-  if (step <= 0 || step >= MAX_STEP) {
+  if (step <= 0 ) {
     printf("Invalid Step NUM\n");
     return;
   }
@@ -119,12 +119,10 @@ void vm_run(VM_Context* ctx, int step) {
   if (ctx->state == VM_STOP) {
     show_info(ctx);
     printf("虚拟机正常停机\n\n");
-    mem_destory(ctx);
   } else if (ctx->state == VM_CRASH) {
     show_info(ctx);
     printf("虚拟机崩溃\n\n");
-    mem_destory(ctx);
-  } else if (ctx->state == VM_PAUSE) {
+  } else if (ctx->is_vmdb == true) {
     printf("虚拟机暂停\n\n");
   }
 }

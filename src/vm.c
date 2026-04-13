@@ -22,6 +22,11 @@ void handle_sub(VM_Context* ctx) {
 void handle_cmp(VM_Context* ctx) {
   // 先出栈是右操作数
   // 后出栈是左操作数
+  if (ctx->sp < 2) {
+    printf("handle_cmp: Stack fault\n");
+    ctx->state = VM_CRASH;
+    return;
+  }
   int right_op = ctx->stack[--ctx->sp];
   int left_op = ctx->stack[--ctx->sp];
 

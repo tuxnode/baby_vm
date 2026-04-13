@@ -2,6 +2,7 @@
 #include "vmdb.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
@@ -35,7 +36,7 @@ void execute_command(char *line, VM_Context* ctx) {
   }
 }
 
-int vmdb_cli(VM_Context* ctx) {
+void vmdb_cli(VM_Context* ctx) {
   char input[256];
 
   printf(CLEAR_SCREEN);
@@ -60,7 +61,7 @@ int vmdb_cli(VM_Context* ctx) {
 
     execute_command(input, ctx);
   }
-  return 0;
+  return;
 }
 
 static bool check_state(VM_Context* ctx) {
@@ -105,5 +106,6 @@ void cmd_si(char *args, VM_Context* ctx) {
 
   vm_run(ctx, step);
   show_info(ctx);
+
 }
 

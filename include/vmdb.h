@@ -12,7 +12,7 @@
 #define COLOR_RED "\033[1;31m"
 
 void print_prompt();
-int vmdb_cli(VM_Context*);
+void vmdb_cli(VM_Context*);
 void execute_command(char *line, VM_Context*);
 
 void cmd_help(char *args, VM_Context* ctx);

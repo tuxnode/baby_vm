@@ -40,7 +40,7 @@ enum OPCODE {
 #define VM_RUNNING 1
 #define VM_STOP 2
 #define VM_CRASH 3
-#define VM_PAUSE 4
+// #define VM_PAUSE 4
 
 #define MEM_SIZE 1024 * 64
 #define STACK_SIZE 256

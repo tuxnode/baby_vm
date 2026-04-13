@@ -98,7 +98,6 @@ void dump_stack(VM_Context* ctx) {
 
 void mem_destory(VM_Context* ctx) {
   if (ctx->state == VM_CRASH || ctx->state == VM_STOP) {
-    free(vm_mem);
     free(ctx);
   }
 }
