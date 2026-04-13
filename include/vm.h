@@ -65,6 +65,7 @@ void handle_pushr(VM_Context* ctx);
 void init_mem();
 void load_binary(int argc, char *argv[]);
 void init_and_decrypt_vm();
+void dump_stack(VM_Context* ctx);
 
 // cpu.c
 void vm_run(VM_Context* ctx);

@@ -80,3 +80,21 @@ void init_and_decrypt_vm() {
   }
 printf("[*] 成功在内存中原地解密了 %d 字节的指令。\n", code_len);
 }
+
+void dump_stack(VM_Context* ctx) {
+  printf("STACK INFO\n");
+  printf("SP: %d / %d\n", ctx->sp, STACK_SIZE);
+
+  if (ctx->sp <= 0) {
+    printf("[ Empty Stack ]\n");
+  } else {
+    for (int i = ctx->sp - 1; i >= 0; i--) {
+      printf("  [%03d]: 0x%08X (%u)", i, ctx->stack[i], ctx->stack[i]);
+      if (i == ctx->sp - 1) {
+        printf(" <--- TOP");
+      }
+      printf("\n");
+    }
+  }
+  printf("STACK END\n");
+}

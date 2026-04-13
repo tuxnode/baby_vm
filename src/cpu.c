@@ -36,6 +36,8 @@ void show_info(VM_Context* ctx) {
   for (int i = 0; i < 4; i++) {
     printf("Registers: R%d: %d \n", i, ctx->reg[i]);
   }
+
+  dump_stack(ctx);
 }
 
 void vm_run(VM_Context* ctx) {
