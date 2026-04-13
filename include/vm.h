@@ -85,4 +85,7 @@ void sys_print_str(VM_Context* ctx);
 void sys_print_int(VM_Context* ctx);
 void sys_read_str(VM_Context* ctx);
 
+// disass.c
+int disassemble_instruction(VM_Context *ctx, int addr, char *buffer);
+
 #endif

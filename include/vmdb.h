@@ -9,6 +9,7 @@
 #define COLOR_BLUE   "\033[1;34m"
 #define COLOR_RESET  "\033[0m"
 #define CLEAR_SCREEN "\033[2J\033[H"
+#define COLOR_RED "\033[1;31m"
 
 void print_prompt();
 int vmdb_cli(VM_Context*);

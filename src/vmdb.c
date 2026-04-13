@@ -90,10 +90,18 @@ void cmd_si(char *args, VM_Context* ctx) {
     printf("Usage: si don't need args\n");
     return;
   }
-
-  int step = 1;
-
   check_state(ctx);
+
+  char disasm_buf[64];
+  int cur_pc = ctx->pc;
+  int step = 1;
+  ctx->is_vmdb = true;
+
+  // 反汇编
+  disassemble_instruction(ctx, cur_pc, disasm_buf);
+  if (ctx->is_vmdb) {
+    printf(COLOR_RED " [ASM] 0x%04X: %-15s " COLOR_RESET, cur_pc, disasm_buf);
+  }
 
   vm_run(ctx, step);
   show_info(ctx);
