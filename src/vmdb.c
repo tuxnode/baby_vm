@@ -37,6 +37,7 @@ void execute_command(char *line, VM_Context* ctx) {
 }
 
 void vmdb_cli(VM_Context* ctx) {
+  char old_input[256];
   char input[256];
 
   printf(CLEAR_SCREEN);
@@ -53,7 +54,18 @@ void vmdb_cli(VM_Context* ctx) {
     // 去掉换行符
     input[strcspn(input, "\n")] = 0;
 
-    if (strlen(input) == 0) continue;
+    if (strlen(input) == 0) {
+      if (strlen(old_input) > 0) {
+          strncpy(input, old_input, 256); 
+          printf("Repeating: %s\n", input);
+      } else {
+          continue;
+      }
+    } else {
+        strcpy(old_input, input);
+    }
+
+    // if (strlen(input) == 0) continue;
 
     if (strcmp(input, "exit") == 0) {
         break;
