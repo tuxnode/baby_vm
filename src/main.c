@@ -33,7 +33,9 @@ int main(int argc, char *argv[]) {
   // 加载指令文件到内存
   load_binary(argv[optind]);
 
+#ifdef HEX_XOR
   init_and_decrypt_vm();
+#endif
 
   if (g_flag) {
     vmdb_cli(ctx);
