@@ -17,7 +17,7 @@ struct CMD {
 };
 
 void print_prompt() {
-  printf(COLOR_GREEN "gemini-vm" COLOR_RESET ":" COLOR_BLUE "~" COLOR_RESET "$ ");
+  printf(COLOR_GREEN "(VMDB)" COLOR_RESET ":" COLOR_BLUE "~" COLOR_RESET "$ ");
   fflush(stdout);
 }
 
